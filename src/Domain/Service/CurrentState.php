@@ -8,10 +8,17 @@ use Assert\Assertion;
 
 class CurrentState
 {
+    // @see https://docs.docker.com/engine/swarm/how-swarm-mode-works/swarm-task-states/
     private const FINAL_STATES = [
         'complete',
         'running',
         'failed',
+        'rejected',
+    ];
+
+    private const FAILURE_STATES = [
+        'failed',
+        'rejected',
     ];
 
     private $state;
@@ -32,6 +39,6 @@ class CurrentState
 
     public function hasFailed(): bool
     {
-        return 'failed' === $this->state;
+        return in_array($this->state, self::FAILURE_STATES, true);
     }
 }

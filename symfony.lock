@@ -172,5 +172,8 @@
     },
     "beberlei/assert": {
         "version": "v2.7.11"
+    },
+    "phpstan/phpdoc-parser": {
+        "version": "dev-master"
     }
 }

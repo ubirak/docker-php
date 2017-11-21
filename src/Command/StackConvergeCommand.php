@@ -51,11 +51,7 @@ class StackConvergeCommand extends Command
             $previous = $progress->getCurrent();
             do {
                 $progress = $this->dockerService->stackProgress($stackName);
-                $increment = $progress->getCurrent() - $previous;
-
-                if ($increment > 0) {
-                    $io->progressAdvance($increment);
-                }
+                $io->progressAdvance(max(0, $progress->getCurrent() - $previous));
 
                 $previous = $progress->getCurrent();
 

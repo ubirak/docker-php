@@ -13,28 +13,51 @@ class Service extends atoum
     /**
      * @dataProvider convergence
      */
-    public function test has converged(CurrentState $currentState, DesiredState $desiredState, bool $hasConverged)
+    public function test has converged(CurrentState $currentState, DesiredState $desiredState, string $error, bool $hasConverged)
     {
         $this
+            ->given(
+                $name = 'some_service.1'
+            )
             ->when(
-                $this->newTestedInstance($currentState, $desiredState)
+                $this->newTestedInstance($name, $currentState, $desiredState, $error)
             )
             ->then
                 ->boolean($this->testedInstance->hasConverged())
-                ->isIdenticalTo($hasConverged)
+                    ->isIdenticalTo($hasConverged)
+                ->string($this->testedInstance->getName())
+                    ->isIdenticalTo($name)
+                ->string($this->testedInstance->getError())
+                    ->isIdenticalTo($error)
+        ;
+    }
+
+    public function test name cannot be blank()
+    {
+        $this
+            ->given(
+                $name = '',
+                $error = ''
+            )
+            ->exception(function () use ($name, $error) {
+                $this->newTestedInstance($name, new CurrentState('running'), new DesiredState('running'), $error);
+            })
+                ->isInstanceOf('\InvalidArgumentException')
+                    ->message
+                        ->contains('was expected to contain a value')
         ;
     }
 
     protected function convergence(): array
     {
         return [
-            'Convergence [complete,running]' => [new CurrentState('complete'), new DesiredState('running'), true],
-            'Convergence [running,running]' => [new CurrentState('running'), new DesiredState('running'), true],
-            'Convergence [failed,running]' => [new CurrentState('failed'), new DesiredState('running'), true],
-            'Convergence [complete,shutdown]' => [new CurrentState('complete'), new DesiredState('shutdown'), true],
-            'Convergence [running,shutdown]' => [new CurrentState('running'), new DesiredState('shutdown'), true],
-            'Convergence [failed,shutdown]' => [new CurrentState('failed'), new DesiredState('shutdown'), true],
-            '!= Convergence [accepted,shutdown]' => [new CurrentState('accepted'), new DesiredState('shutdown'), false],
+            'Convergence [complete,running,]' => [new CurrentState('complete'), new DesiredState('running'), '', true],
+            'Convergence [running,running,]' => [new CurrentState('running'), new DesiredState('running'), '', true],
+            'Convergence [failed,running,]' => [new CurrentState('failed'), new DesiredState('running'), 'error #1', true],
+            'Convergence [complete,shutdown,]' => [new CurrentState('complete'), new DesiredState('shutdown'), '', true],
+            'Convergence [running,shutdown,]' => [new CurrentState('running'), new DesiredState('shutdown'), '', true],
+            'Convergence [failed,shutdown,error]' => [new CurrentState('failed'), new DesiredState('shutdown'), 'error #2', true],
+            '!= Convergence [accepted,shutdown,]' => [new CurrentState('accepted'), new DesiredState('shutdown'), '', false],
         ];
     }
 }

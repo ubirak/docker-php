@@ -6,17 +6,39 @@ namespace App\Domain;
 
 use App\Domain\Service\CurrentState;
 use App\Domain\Service\DesiredState;
+use Assert\Assertion;
 
 class Service
 {
+    private $name;
+
     private $currentState;
 
     private $desiredState;
 
-    public function __construct(CurrentState $currentState, DesiredState $desiredState)
+    private $error;
+
+    public function __construct(string $name, CurrentState $currentState, DesiredState $desiredState, string $error)
     {
+        Assertion::notBlank($name);
+
+        $this->name = $name;
         $this->currentState = $currentState;
         $this->desiredState = $desiredState;
+        if ($currentState->hasFailed()) {
+            Assertion::notBlank($error);
+        }
+        $this->error = $error;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getError(): string
+    {
+        return $this->error;
     }
 
     public function hasConverged(): bool

@@ -1,7 +1,7 @@
 docker-php
 ==========
 
-docker-php is a docker client writent in php. You can see it as a hack for some currently missing features in the official docker client.
+docker-php is a docker client writen in php. You can see it as a hack for some currently missing features in the official docker client.
 
 ## Born
 
@@ -13,6 +13,8 @@ There's currently only one command:
 ```shell
 docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock karibbu/docker-php:latest stack:converge <stack>
 ```
+
+![stack converge demo](./demo/stack-converge.demo.gif)
 
 For help and more options:
 ```shell
@@ -26,5 +28,5 @@ docker-php is intended for people that want to hack around docker client for mis
 Licensing
 =========
 
-docker-php is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/moby/moby/blob/master/LICENSE) for the full license text.
+docker-php is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/karibbu/docker-php/blob/master/LICENSE) for the full license text.
 

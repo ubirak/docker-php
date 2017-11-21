@@ -25,6 +25,12 @@ docker run --rm -it karibbu/docker-php:latest stack:converge --help
 
 docker-php is intended for people that want to hack around docker client for missing/not merged features.
 
+## Troubleshooting
+
+> Error thrown while running command "stack:converge website_designer". Message: "The command "docker stack ps website_designer --format='{{json .}}'" failed.
+
+The service need access to your docker sock. You can run it as root `-u root` or change the read permission of your `/var/run/docker.sock`
+
 Licensing
 =========
 

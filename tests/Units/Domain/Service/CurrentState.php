@@ -23,12 +23,12 @@ class CurrentState extends atoum
         ;
     }
 
-    public function test state is failure()
+    /**
+     * @dataProvider failureState
+     */
+    public function test state is failure($state)
     {
         $this
-            ->given(
-                $state = 'failed'
-            )
             ->when(
                 $this->newTestedInstance($state)
             )
@@ -62,6 +62,14 @@ class CurrentState extends atoum
             'Final state complete' => ['Complete since 2 hours', true],
             'Final state running' => ['Running', true],
             'Final state failed' => ['Failed a few seconds ago', true],
+        ];
+    }
+
+    protected function failureState(): array
+    {
+        return [
+            'Not failure state failed' => ['failed'],
+            'Not failure state rejected' => ['rejected'],
         ];
     }
 }

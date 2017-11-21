@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Domain\Stack;
+use App\App\DockerService;
 use App\Domain\ServiceFailure;
 
 class StackConvergeCommand extends Command
@@ -20,11 +20,11 @@ class StackConvergeCommand extends Command
     private const ETIME = 62; /* Timer expired */
     private const ENOTRECOVERABLE = 131; /* ENOTRECOVERABLE */
 
-    private $stack;
+    private $dockerService;
 
-    public function __construct(Stack $stack)
+    public function __construct(DockerService $dockerService)
     {
-        $this->stack = $stack;
+        $this->dockerService = $dockerService;
         parent::__construct('stack:converge');
     }
 
@@ -45,12 +45,12 @@ class StackConvergeCommand extends Command
 
         try {
             $startTime = time();
-            $progress = $this->stack->getProgress($stackName);
+            $progress = $this->dockerService->stackProgress($stackName);
 
             $io->progressStart($progress->getDesired());
             $previous = $progress->getCurrent();
             do {
-                $progress = $this->stack->getProgress($stackName);
+                $progress = $this->dockerService->stackProgress($stackName);
                 $increment = $progress->getCurrent() - $previous;
 
                 if ($increment > 0) {

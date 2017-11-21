@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Units\Domain;
+namespace App\Tests\Units\App;
 
-// use App\Domain\StackProgress;
 use atoum;
 
-class Stack extends atoum
+class DockerService extends atoum
 {
     public function test it track progress of a stack()
     {
@@ -37,7 +36,7 @@ class Stack extends atoum
                 $this->newTestedInstance($dockerClientMock)
             )
             ->when(
-                $progress = $this->testedInstance->getProgress($stackName)
+                $progress = $this->testedInstance->stackProgress($stackName)
             )
             ->then
                 ->mock($dockerClientMock)
@@ -82,7 +81,7 @@ class Stack extends atoum
                 $this->newTestedInstance($dockerClientMock)
             )
             ->when(
-                $progress = $this->testedInstance->getProgress($stackName)
+                $progress = $this->testedInstance->stackProgress($stackName)
             )
             ->then
                 ->mock($dockerClientMock)
@@ -122,7 +121,7 @@ class Stack extends atoum
                 $this->newTestedInstance($dockerClientMock)
             )
             ->exception(function () use ($dockerClientMock, $stackName) {
-                $this->testedInstance->getProgress($stackName);
+                $this->testedInstance->stackProgress($stackName);
             })
             ->isInstanceOf('\App\Domain\ServiceFailure')
         ;

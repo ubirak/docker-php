@@ -8,7 +8,7 @@ use atoum;
 
 class StackConvergeCommand extends atoum
 {
-    private $stack;
+    private $dockerService;
 
     private $stackName;
 
@@ -19,7 +19,7 @@ class StackConvergeCommand extends atoum
     public function beforeTestMethod($method)
     {
         $this->mockGenerator->orphanize('__construct');
-        $this->stack = new \mock\App\Domain\Stack();
+        $this->dockerService = new \mock\App\App\DockerService();
         $stackName = 'someStack';
         $this->stackName = $stackName;
 
@@ -38,8 +38,8 @@ class StackConvergeCommand extends atoum
     {
         $this
             ->given(
-                $this->newTestedInstance($this->stack),
-                $this->calling($this->stack)->getProgress = new \App\Domain\StackProgress(1, 1)
+                $this->newTestedInstance($this->dockerService),
+                $this->calling($this->dockerService)->stackProgress = new \App\Domain\StackProgress(1, 1)
             )
             ->when(
                 $result = $this->testedInstance->execute($this->input, $this->output)
@@ -47,8 +47,8 @@ class StackConvergeCommand extends atoum
             ->then
                 ->variable($result)
                     ->isEqualTo(0)
-                ->mock($this->stack)
-                    ->call('getProgress')
+                ->mock($this->dockerService)
+                    ->call('stackProgress')
                         ->withIdenticalArguments($this->stackName)
                         ->twice()
         ;
@@ -58,8 +58,8 @@ class StackConvergeCommand extends atoum
     {
         $this
             ->given(
-                $this->newTestedInstance($this->stack),
-                $this->calling($this->stack)->getProgress = function () {
+                $this->newTestedInstance($this->dockerService),
+                $this->calling($this->dockerService)->stackProgress = function () {
                     throw new \App\Domain\ServiceFailure();
                 }
             )
@@ -76,8 +76,8 @@ class StackConvergeCommand extends atoum
     {
         $this
             ->given(
-                $this->newTestedInstance($this->stack),
-                $this->calling($this->stack)->getProgress = function () {
+                $this->newTestedInstance($this->dockerService),
+                $this->calling($this->dockerService)->stackProgress = function () {
                     sleep(1);
 
                     return new \App\Domain\StackProgress(1, 2);

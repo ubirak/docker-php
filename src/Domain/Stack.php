@@ -17,8 +17,14 @@ class Stack
     {
         $currentCount = 0;
         $desiredCount = 0;
+        $encounteredServices = [];
 
         foreach ($this->dockerClient->stackPs($stackName) as $process) {
+            if (array_key_exists($process['Name'], $encounteredServices)) {
+                continue;
+            }
+
+            $encounteredServices[$process['Name']] = true;
             $service = new Service(
                 new Service\CurrentState($process['CurrentState']),
                 new Service\DesiredState($process['DesiredState'])

@@ -18,11 +18,58 @@ class Stack extends atoum
                     yield from
                     [
                         [
+                            'Name' => 'some_service_foo.1',
                             'CurrentState' => 'running',
                             'DesiredState' => 'running',
                         ],
                         [
+                            'Name' => 'some_service_bar.1',
                             'CurrentState' => 'running',
+                            'DesiredState' => 'shutdown',
+                        ],
+                    ];
+                }
+            )
+            ->and(
+                $stackName = 'someStack'
+            )
+            ->and(
+                $this->newTestedInstance($dockerClientMock)
+            )
+            ->when(
+                $progress = $this->testedInstance->getProgress($stackName)
+            )
+            ->then
+                ->mock($dockerClientMock)
+                    ->call('stackPs')
+                        ->withIdenticalArguments($stackName)
+                        ->once()
+                ->boolean($progress->hasConverged())
+                    ->isTrue()
+        ;
+    }
+
+    public function test it dedupe listed services the first occurrence win()
+    {
+        $this
+            ->given(
+                $dockerClientMock = new \mock\App\Domain\DockerClient(),
+                $this->calling($dockerClientMock)->stackPs = function () {
+                    yield from
+                    [
+                        [
+                            'Name' => 'some_service_foo.1',
+                            'CurrentState' => 'running',
+                            'DesiredState' => 'running',
+                        ],
+                        [
+                            'Name' => 'some_service_foo.1',
+                            'CurrentState' => 'failed',
+                            'DesiredState' => 'shutdown',
+                        ],
+                        [
+                            'Name' => 'some_service_foo.1',
+                            'CurrentState' => 'failed',
                             'DesiredState' => 'shutdown',
                         ],
                     ];
@@ -56,10 +103,12 @@ class Stack extends atoum
                     yield from
                     [
                         [
+                            'Name' => 'some_service_foo.1',
                             'CurrentState' => 'running',
                             'DesiredState' => 'running',
                         ],
                         [
+                            'Name' => 'some_service_bar.1',
                             'CurrentState' => 'failed',
                             'DesiredState' => 'running',
                         ],

@@ -1,0 +1,59 @@
+language: c
+
+sudo: required
+dist: trusty
+
+env:
+    global:
+        - DOCKER_VERSION=17.10.0~ce-0~ubuntu
+        - DOCKER_EXPERIMENTAL=true
+
+before_install:
+    - |
+        docker_setup () {
+            if [ ! -z "$DOCKER_EXPERIMENTAL" ]; then
+                printf '{"experimental":true}\n' | sudo tee /etc/docker/daemon.json
+            fi
+            INSTALLED_DOCKER_VERSION=$(docker version --format '{{.Server.Version}}' | sed -e 's/-ce$//')
+            SIMPLIFIED_DOCKER_VERSION=$(echo $DOCKER_VERSION | sed -e 's/~ce.*//')
+            if [ "$INSTALLED_DOCKER_VERSION" != "$SIMPLIFIED_DOCKER_VERSION" ] ; then
+                apt-cache madison docker-ce
+                sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-ce=${DOCKER_VERSION}
+            else
+                sudo service docker restart
+            fi
+        }
+        export -f docker_setup
+    - docker_setup
+    - docker version
+
+install:
+    - make pull
+    - make build
+
+script:
+    - make qa
+    - make test
+
+deploy:
+    provider: script
+    script: >-
+        docker login --username="${DOCKER_HUB_USERNAME}"
+        --password="${DOCKER_HUB_PASSWORD}" && make push
+    skip_cleanup: true
+    'on':
+        branch: master
+
+after_success:
+    - docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+
+after_failure:
+    - docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+
+notifications:
+    slack: verylastroom:yqs3UqNXq6H3L9p8npeVFWgh
+    email:
+        recipients:
+            - ci@karibbu.com
+        on_success: change
+        on_failure: change

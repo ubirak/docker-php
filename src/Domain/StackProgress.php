@@ -15,7 +15,7 @@ class StackProgress
     public function __construct(int $current, int $desired)
     {
         Assertion::greaterThan($desired, 0);
-        Assertion::greaterThan($current, 0);
+        Assertion::greaterOrEqualThan($current, 0);
         Assertion::lessOrEqualThan($current, $desired);
 
         $this->current = $current;

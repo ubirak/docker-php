@@ -45,8 +45,9 @@ class StackProgress extends atoum
         return [
             'Convergence #1' => [1, 1, true],
             'Convergence #2' => [PHP_INT_MAX, PHP_INT_MAX, true],
-            '!= Convergence #1' => [1, 2, false],
-            '!= Convergence #2' => [1, PHP_INT_MAX, false],
+            '!= Convergence #1' => [0, 1, false],
+            '!= Convergence #2' => [1, 2, false],
+            '!= Convergence #3' => [1, PHP_INT_MAX, false],
         ];
     }
 
@@ -54,7 +55,6 @@ class StackProgress extends atoum
     {
         return [
             'current < 0' => [-1, 1],
-            'current = 0' => [0, 1],
             'current > desired' => [2, 1],
             'desired = 0' => [2, 0],
             'desired < 0' => [2, -1],

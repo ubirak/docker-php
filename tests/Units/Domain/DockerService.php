@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Units\App;
+namespace App\Tests\Units\Domain;
 
 use atoum;
 
@@ -127,7 +127,7 @@ class DockerService extends atoum
             ->exception(function () {
                 $this->testedInstance->stackProgress($this->stackName);
             })
-            ->isInstanceOf('\App\App\DockerServiceFailure')
+            ->isInstanceOf('\App\Domain\DockerServiceFailure')
                 ->message
                     ->contains($errorMessage)
         ;

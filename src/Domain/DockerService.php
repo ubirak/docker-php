@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\App;
-
-use App\Domain\DockerClient;
-use App\Domain\StackProgress;
+namespace App\Domain;
 
 class DockerService
 {
@@ -29,7 +26,7 @@ class DockerService
             $encounteredServices[$service->getName()] = true;
 
             if ($service->hasFailed()) {
-                throw new DockerServiceFailure($service->getError());
+                throw DockerServiceFailure::serviceFailed($service->getError());
             }
 
             ++$desiredCount;

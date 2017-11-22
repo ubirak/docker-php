@@ -19,7 +19,7 @@ class StackConvergeCommand extends atoum
     public function beforeTestMethod($method)
     {
         $this->mockGenerator->orphanize('__construct');
-        $this->dockerService = new \mock\App\App\DockerService();
+        $this->dockerService = new \mock\App\Domain\DockerService();
         $stackName = 'someStack';
         $this->stackName = $stackName;
 
@@ -60,7 +60,7 @@ class StackConvergeCommand extends atoum
             ->given(
                 $this->newTestedInstance($this->dockerService),
                 $this->calling($this->dockerService)->stackProgress = function () {
-                    throw new \App\App\DockerServiceFailure();
+                    throw \App\Domain\DockerServiceFailure::serviceFailed('Ho no!');
                 }
             )
             ->when(
@@ -68,7 +68,7 @@ class StackConvergeCommand extends atoum
             )
             ->then
                 ->variable($result)
-                    ->isEqualTo(131)
+                    ->isEqualTo(\App\Domain\DockerServiceFailure::ENOTRECOVERABLE)
         ;
     }
 

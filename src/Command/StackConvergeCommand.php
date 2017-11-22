@@ -10,15 +10,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\App\DockerService;
-use App\App\DockerServiceFailure;
+use App\Domain\DockerService;
+use App\Domain\DockerServiceFailure;
 
 class StackConvergeCommand extends Command
 {
     private const SLEEP_IN_U_SECONDS = 3 * (10 ** 5);
     // following consts refers to POSIX errno codes
     private const ETIME = 62; /* Timer expired */
-    private const ENOTRECOVERABLE = 131; /* ENOTRECOVERABLE */
 
     private $dockerService;
 
@@ -67,9 +66,9 @@ class StackConvergeCommand extends Command
             $io->progressFinish();
             $io->success('Stack has successfuly converged');
         } catch (DockerServiceFailure $e) {
-            $io->error('Emergency stop: at least a service in the stack has a failure.');
+            $io->error($e->getMessage());
 
-            return self::ENOTRECOVERABLE;
+            return $e->getCode();
         }
     }
 }

@@ -4,35 +4,32 @@ declare(strict_types=1);
 
 namespace App\App;
 
-use App\Domain;
+use App\Domain\DockerClient;
+use App\Domain\StackProgress;
 
 class DockerService
 {
     private $dockerClient;
 
-    public function __construct(Domain\DockerClient $dockerClient)
+    public function __construct(DockerClient $dockerClient)
     {
         $this->dockerClient = $dockerClient;
     }
 
-    public function stackProgress(string $stackName): Domain\StackProgress
+    public function stackProgress(string $stackName): StackProgress
     {
         $currentCount = 0;
         $desiredCount = 0;
         $encounteredServices = [];
 
-        foreach ($this->dockerClient->stackPs($stackName) as $process) {
-            if (array_key_exists($process['Name'], $encounteredServices)) {
+        foreach ($this->dockerClient->stackPs($stackName) as $service) {
+            if (array_key_exists($service->getName(), $encounteredServices)) {
                 continue;
             }
+            $encounteredServices[$service->getName()] = true;
 
-            $encounteredServices[$process['Name']] = true;
-            $service = new Domain\Service(
-                new Domain\Service\CurrentState($process['CurrentState']),
-                new Domain\Service\DesiredState($process['DesiredState'])
-            );
             if ($service->hasFailed()) {
-                throw new Domain\ServiceFailure();
+                throw new DockerServiceFailure($service->getError());
             }
 
             ++$desiredCount;
@@ -41,6 +38,6 @@ class DockerService
             }
         }
 
-        return new Domain\StackProgress($currentCount, $desiredCount);
+        return new StackProgress($currentCount, $desiredCount);
     }
 }

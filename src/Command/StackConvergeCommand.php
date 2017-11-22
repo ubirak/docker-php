@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\App\DockerService;
-use App\Domain\ServiceFailure;
+use App\App\DockerServiceFailure;
 
 class StackConvergeCommand extends Command
 {
@@ -66,7 +66,7 @@ class StackConvergeCommand extends Command
 
             $io->progressFinish();
             $io->success('Stack has successfuly converged');
-        } catch (ServiceFailure $e) {
+        } catch (DockerServiceFailure $e) {
             $io->error('Emergency stop: at least a service in the stack has a failure.');
 
             return self::ENOTRECOVERABLE;

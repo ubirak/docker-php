@@ -8,40 +8,48 @@ use atoum;
 
 class DockerService extends atoum
 {
+    private $dockerClient;
+
+    private $stackName;
+
+    public function beforeTestMethod($method)
+    {
+        $this->mockGenerator->orphanize('__construct');
+        $this->dockerClient = new \mock\App\Domain\DockerClient();
+        $this->stackName = 'someStack';
+    }
+
     public function test it track progress of a stack()
     {
         $this
             ->given(
-                $dockerClientMock = new \mock\App\Domain\DockerClient(),
-                $this->calling($dockerClientMock)->stackPs = function () {
-                    yield from
-                    [
-                        [
-                            'Name' => 'some_service_foo.1',
-                            'CurrentState' => 'running',
-                            'DesiredState' => 'running',
-                        ],
-                        [
-                            'Name' => 'some_service_bar.1',
-                            'CurrentState' => 'running',
-                            'DesiredState' => 'shutdown',
-                        ],
+                $this->calling($this->dockerClient)->stackPs = function () {
+                    yield from [
+                        new \App\Domain\Service(
+                            'some_service_foo.1',
+                            new \App\Domain\Service\CurrentState('running'),
+                            new \App\Domain\Service\DesiredState('running'),
+                            ''
+                        ),
+                        new \App\Domain\Service(
+                            'some_service_bar.1',
+                            new \App\Domain\Service\CurrentState('running'),
+                            new \App\Domain\Service\DesiredState('running'),
+                            ''
+                        ),
                     ];
                 }
             )
             ->and(
-                $stackName = 'someStack'
-            )
-            ->and(
-                $this->newTestedInstance($dockerClientMock)
+                $this->newTestedInstance($this->dockerClient)
             )
             ->when(
-                $progress = $this->testedInstance->stackProgress($stackName)
+                $progress = $this->testedInstance->stackProgress($this->stackName)
             )
             ->then
-                ->mock($dockerClientMock)
+                ->mock($this->dockerClient)
                     ->call('stackPs')
-                        ->withIdenticalArguments($stackName)
+                        ->withIdenticalArguments($this->stackName)
                         ->once()
                 ->boolean($progress->hasConverged())
                     ->isTrue()
@@ -52,41 +60,39 @@ class DockerService extends atoum
     {
         $this
             ->given(
-                $dockerClientMock = new \mock\App\Domain\DockerClient(),
-                $this->calling($dockerClientMock)->stackPs = function () {
-                    yield from
-                    [
-                        [
-                            'Name' => 'some_service_foo.1',
-                            'CurrentState' => 'running',
-                            'DesiredState' => 'running',
-                        ],
-                        [
-                            'Name' => 'some_service_foo.1',
-                            'CurrentState' => 'failed',
-                            'DesiredState' => 'shutdown',
-                        ],
-                        [
-                            'Name' => 'some_service_foo.1',
-                            'CurrentState' => 'failed',
-                            'DesiredState' => 'shutdown',
-                        ],
+                $this->calling($this->dockerClient)->stackPs = function () {
+                    yield from [
+                        new \App\Domain\Service(
+                            'some_service_foo.1',
+                            new \App\Domain\Service\CurrentState('running'),
+                            new \App\Domain\Service\DesiredState('running'),
+                            ''
+                        ),
+                        new \App\Domain\Service(
+                            'some_service_foo.1',
+                            new \App\Domain\Service\CurrentState('failed'),
+                            new \App\Domain\Service\DesiredState('shutdown'),
+                            'Some error'
+                        ),
+                        new \App\Domain\Service(
+                            'some_service_foo.1',
+                            new \App\Domain\Service\CurrentState('failed'),
+                            new \App\Domain\Service\DesiredState('shutdown'),
+                            'Some other error'
+                        ),
                     ];
                 }
             )
             ->and(
-                $stackName = 'someStack'
-            )
-            ->and(
-                $this->newTestedInstance($dockerClientMock)
+                $this->newTestedInstance($this->dockerClient)
             )
             ->when(
-                $progress = $this->testedInstance->stackProgress($stackName)
+                $progress = $this->testedInstance->stackProgress($this->stackName)
             )
             ->then
-                ->mock($dockerClientMock)
+                ->mock($this->dockerClient)
                     ->call('stackPs')
-                        ->withIdenticalArguments($stackName)
+                        ->withIdenticalArguments($this->stackName)
                         ->once()
                 ->boolean($progress->hasConverged())
                     ->isTrue()
@@ -97,33 +103,43 @@ class DockerService extends atoum
     {
         $this
             ->given(
-                $dockerClientMock = new \mock\App\Domain\DockerClient(),
-                $this->calling($dockerClientMock)->stackPs = function () {
-                    yield from
-                    [
-                        [
-                            'Name' => 'some_service_foo.1',
-                            'CurrentState' => 'running',
-                            'DesiredState' => 'running',
-                        ],
-                        [
-                            'Name' => 'some_service_bar.1',
-                            'CurrentState' => 'failed',
-                            'DesiredState' => 'running',
-                        ],
+                $errorMessage = 'Some Error from some service with exit code 127',
+                $this->calling($this->dockerClient)->stackPs = function () use ($errorMessage) {
+                    yield from [
+                        new \App\Domain\Service(
+                            'some_service_foo.1',
+                            new \App\Domain\Service\CurrentState('running'),
+                            new \App\Domain\Service\DesiredState('running'),
+                            ''
+                        ),
+                        new \App\Domain\Service(
+                            'some_service_bar.1',
+                            new \App\Domain\Service\CurrentState('failed'),
+                            new \App\Domain\Service\DesiredState('running'),
+                            $errorMessage
+                        ),
                     ];
                 }
             )
             ->and(
-                $stackName = 'someStack'
+                $this->newTestedInstance($this->dockerClient)
             )
-            ->and(
-                $this->newTestedInstance($dockerClientMock)
-            )
-            ->exception(function () use ($dockerClientMock, $stackName) {
-                $this->testedInstance->stackProgress($stackName);
+            ->exception(function () {
+                $this->testedInstance->stackProgress($this->stackName);
             })
-            ->isInstanceOf('\App\Domain\ServiceFailure')
+            ->isInstanceOf('\App\App\DockerServiceFailure')
+                ->message
+                    ->contains($errorMessage)
         ;
+    }
+
+    protected function createService(array $payload)
+    {
+        yield new \App\Domain\Service(
+            $payload['Name'],
+            new \App\Domain\Service\CurrentState($payload['CurrentState']),
+            new \App\Domain\Service\DesiredState($payload['DesiredState']),
+            $payload['Error']
+        );
     }
 }

@@ -16,7 +16,8 @@
     "require-dev": {
         "atoum/atoum": "^3.2",
         "friendsofphp/php-cs-fixer": "^2.8",
-        "phpstan/phpstan": "dev-master"
+        "phpstan/phpstan": "dev-master",
+        "phpstan/phpdoc-parser": "dev-master"
     },
     "config": {
         "vendor-dir": "/home/php/vendor",

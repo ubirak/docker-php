@@ -60,7 +60,7 @@ class StackConvergeCommand extends atoum
             ->given(
                 $this->newTestedInstance($this->dockerService),
                 $this->calling($this->dockerService)->stackProgress = function () {
-                    throw new \App\Domain\ServiceFailure();
+                    throw new \App\App\DockerServiceFailure();
                 }
             )
             ->when(

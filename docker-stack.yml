@@ -14,7 +14,7 @@ services:
             retries: 10
     short_lived:
         image: alpine:3.6
-        command: "sh -c 'touch /tmp/healthy && sleep 50 && exit 0'"
+        command: "sh -c 'touch /tmp/healthy && sleep 14 && exit 0'"
         deploy:
             replicas: 2
             labels:
@@ -26,12 +26,11 @@ services:
             interval: 1s
             timeout: 2s
             retries: 10
-
     long_lived_flapping:
         image: alpine:3.6
         environment:
             - NO_FAILURES_AFTER_TIMESTAMP
-        command: "sh -c 'if [ $$(date +%s) -lt $$NO_FAILURES_AFTER_TIMESTAMP ] ; then sleep 1; echo ho no...; exit 128; else echo no failure mode; touch /tmp/healthy; sleep 86400; echo byebye; exit 0; fi'"
+        command: "sh -c 'if [ $$(date +%s) -lt $$NO_FAILURES_AFTER_TIMESTAMP ] ; then sleep 3; echo ho no...; exit 128; else echo no failure mode; touch /tmp/healthy; sleep 86400; echo byebye; exit 0; fi'"
         deploy:
             replicas: 2
         healthcheck:

@@ -17,10 +17,16 @@ class ShellDockerClient implements Domain\DockerClient
         $this->processFactory = $processFactory;
     }
 
-    public function stackPs(string $stackName): \Generator
+    public function stackPs(string $stackName, array $filters = []): \Generator
     {
-        $process = $this->processFactory->stackPs($stackName);
+        $process = $this->processFactory->stackPs($stackName, $filters);
         $process->run();
+
+        if (1 === $process->getExitCode() && false !== strpos($process->getErrorOutput(), "nothing found in stack: $stackName")) {
+            yield from [];
+
+            return;
+        }
 
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);

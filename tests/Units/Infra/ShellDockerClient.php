@@ -23,6 +23,30 @@ class ShellDockerClient extends atoum
         $this->calling($this->shellDockerProcessFactory)->stackPs = $this->process;
     }
 
+    public function test stack ps pass filters to process factory()
+    {
+        $this
+            ->given(
+                $this->calling($this->process)->run = 0,
+                $this->calling($this->process)->isSuccessful = true,
+                $this->calling($this->process)->getOutput = ''
+            )
+            ->and(
+                $this->newTestedInstance($this->shellDockerProcessFactory)
+            )
+            ->and(
+                $filters = ['label=bar']
+            )
+            ->when(
+                $this->testedInstance->stackPs($this->stackName, $filters)->current()
+            )
+            ->mock($this->shellDockerProcessFactory)
+                ->call('stackPs')
+                    ->withIdenticalArguments($this->stackName, $filters)
+                    ->once()
+        ;
+    }
+
     public function test stack ps generate services()
     {
         $this
@@ -76,6 +100,30 @@ EOL
         ;
     }
 
+    public function test stack ps generate empty service list on special process failure case()
+    {
+        $this
+            ->given(
+                $this->calling($this->process)->run = 1,
+                $this->calling($this->process)->isSuccessful = false,
+                $this->calling($this->process)->getOutput = '',
+                $this->calling($this->process)->getCommandLine = 'some command',
+                $this->calling($this->process)->getExitCodeText = 'Some error code desc',
+                $this->calling($this->process)->getWorkingDirectory = '/some/path',
+                $this->calling($this->process)->isOutputDisabled = true
+            )
+            ->and(
+                $this->calling($this->process)->getExitCode = 1,
+                $this->calling($this->process)->getErrorOutput = "nothing found in stack: {$this->stackName}"
+            )
+            ->and(
+                $this->newTestedInstance($this->shellDockerProcessFactory)
+            )
+            ->generator($this->testedInstance->stackPs($this->stackName))
+                ->hasSize(0)
+        ;
+    }
+
     public function test stack ps fail accordingly on process failure()
     {
         $this
@@ -84,7 +132,8 @@ EOL
                 $this->calling($this->process)->isSuccessful = false,
                 $this->calling($this->process)->getOutput = '',
                 $this->calling($this->process)->getCommandLine = 'some command',
-                $this->calling($this->process)->getExitCode = '1',
+                $this->calling($this->process)->getExitCode = 1,
+                $this->calling($this->process)->getErrorOutput = '',
                 $this->calling($this->process)->getExitCodeText = 'Some error code desc',
                 $this->calling($this->process)->getWorkingDirectory = '/some/path',
                 $this->calling($this->process)->isOutputDisabled = true
@@ -93,9 +142,7 @@ EOL
                 $this->newTestedInstance($this->shellDockerProcessFactory)
             )
             ->exception(function () {
-                foreach ($this->testedInstance->stackPs($this->stackName) as $service) {
-                    break;
-                }
+                $this->testedInstance->stackPs($this->stackName)->current();
             })
                 ->isInstanceOf('\Symfony\Component\Process\Exception\ProcessFailedException')
                 ->message
@@ -115,9 +162,7 @@ EOL
                 $this->newTestedInstance($this->shellDockerProcessFactory)
             )
             ->exception(function () {
-                foreach ($this->testedInstance->stackPs($this->stackName) as $service) {
-                    break;
-                }
+                $this->testedInstance->stackPs($this->stackName)->current();
             })
                 ->isInstanceOf('\Symfony\Component\Process\Exception\RuntimeException')
                 ->message

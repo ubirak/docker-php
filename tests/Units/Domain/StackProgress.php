@@ -8,6 +8,45 @@ use atoum;
 
 class StackProgress extends atoum
 {
+    public function test accessors return expected values()
+    {
+        $this
+            ->given(
+                $current = 1,
+                $desired = 2,
+                $step = 1
+            )
+            ->when(
+                $this->newTestedInstance($current, $desired, $step)
+            )
+            ->then
+                ->integer($this->testedInstance->getCurrent())
+                    ->isIdenticalTo(1)
+                ->integer($this->testedInstance->getDesired())
+                    ->isIdenticalTo(2)
+                ->integer($this->testedInstance->getStep())
+                    ->isIdenticalTo(1)
+        ;
+    }
+
+    /**
+     * @dataProvider trackFromPrevious
+     */
+    public function test track from previous compute the right step($previousCurrent, $previousDesired, $current, $desired, $expectedStep)
+    {
+        $this
+            ->given(
+                $previous = new \App\Domain\StackProgress($previousCurrent, $previousDesired)
+            )
+            ->when(
+                $sut = $this->testedClass->getClass()::trackFromPrevious($current, $desired, $previous)
+            )
+            ->then
+                ->integer($sut->getStep())
+                    ->isIdenticalTo($expectedStep)
+        ;
+    }
+
     /**
      * @dataProvider convergence
      */
@@ -20,27 +59,32 @@ class StackProgress extends atoum
             ->then
                 ->boolean($this->testedInstance->hasConverged())
                     ->isIdenticalTo($hasConverged)
-                ->integer($this->testedInstance->getCurrent())
-                    ->isIdenticalTo($current)
-                ->integer($this->testedInstance->getDesired())
-                    ->isIdenticalTo($desired)
         ;
     }
 
     /**
      * @dataProvider invalidBounds
      */
-    public function test it fails with invalid bounds(int $current, int $desired)
+    public function test it fails with invalid bounds(int $current, int $desired, int $step = 0)
     {
         $this
-            ->exception(function () use ($current, $desired) {
-                $this->newTestedInstance($current, $desired);
+            ->exception(function () use ($current, $desired, $step) {
+                $this->newTestedInstance($current, $desired, $step);
             })
             ->isInstanceOf('\InvalidArgumentException')
         ;
     }
 
-    public function convergence(): array
+    protected function trackFromPrevious(): array
+    {
+        return [
+            '0,1 => 0,1 | step 0' => [0, 1, 0, 1, 0],
+            '1,2 => 2,2 | step 1' => [1, 2, 2, 2, 1],
+            '1,3 => 3,3 | step 2' => [1, 3, 3, 3, 2],
+        ];
+    }
+
+    protected function convergence(): array
     {
         return [
             'Convergence #1' => [1, 1, true],
@@ -58,6 +102,7 @@ class StackProgress extends atoum
             'current > desired' => [2, 1],
             'desired = 0' => [2, 0],
             'desired < 0' => [2, -1],
+            'step < 0' => [2, 2, -1],
         ];
     }
 }

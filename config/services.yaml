@@ -8,3 +8,6 @@ services:
 
     App\Domain\DockerClient:
         alias: 'App\Infra\ShellDockerClient'
+
+    App\Domain\Clock:
+        alias: 'App\Infra\SystemClock'

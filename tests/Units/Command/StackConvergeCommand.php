@@ -12,6 +12,8 @@ class StackConvergeCommand extends atoum
 
     private $stackName;
 
+    private $timeLimit;
+
     private $input;
 
     private $output;
@@ -22,13 +24,15 @@ class StackConvergeCommand extends atoum
         $this->dockerService = new \mock\App\Domain\DockerService();
         $stackName = 'someStack';
         $this->stackName = $stackName;
+        $timeLimit = 2;
+        $this->timeLimit = $timeLimit;
 
         $this->input = new \mock\Symfony\Component\Console\Input\InputInterface();
         $this->calling($this->input)->getArgument = function ($name) use ($stackName) {
             return 'stack' === $name ? $stackName : null;
         };
-        $this->calling($this->input)->getOption = function ($name) {
-            return 'limit' === $name ? 2 : null;
+        $this->calling($this->input)->getOption = function ($name) use ($timeLimit) {
+            return 'limit' === $name ? $timeLimit : null;
         };
         $this->output = new \mock\Symfony\Component\Console\Output\OutputInterface();
         $this->calling($this->output)->getFormatter = new \mock\Symfony\Component\Console\Formatter\OutputFormatterInterface();
@@ -39,7 +43,11 @@ class StackConvergeCommand extends atoum
         $this
             ->given(
                 $this->newTestedInstance($this->dockerService),
-                $this->calling($this->dockerService)->stackProgress = new \App\Domain\StackProgress(1, 1)
+                $this->calling($this->dockerService)->stackConverge = function () {
+                    yield new \App\Domain\StackProgress(0, 3);
+                    yield new \App\Domain\StackProgress(1, 3, 1);
+                    yield new \App\Domain\StackProgress(3, 3, 2);
+                }
             )
             ->when(
                 $result = $this->testedInstance->execute($this->input, $this->output)
@@ -48,8 +56,8 @@ class StackConvergeCommand extends atoum
                 ->variable($result)
                     ->isEqualTo(0)
                 ->mock($this->dockerService)
-                    ->call('stackProgress')
-                        ->withIdenticalArguments($this->stackName)
+                    ->call('stackConverge')
+                        ->withIdenticalArguments($this->stackName, $this->timeLimit)
                         ->twice()
         ;
     }
@@ -59,7 +67,7 @@ class StackConvergeCommand extends atoum
         $this
             ->given(
                 $this->newTestedInstance($this->dockerService),
-                $this->calling($this->dockerService)->stackProgress = function () {
+                $this->calling($this->dockerService)->stackConverge = function () {
                     throw \App\Domain\DockerServiceFailure::serviceFailed('Ho no!');
                 }
             )
@@ -76,11 +84,10 @@ class StackConvergeCommand extends atoum
     {
         $this
             ->given(
+                $timeLimit = $this->timeLimit,
                 $this->newTestedInstance($this->dockerService),
-                $this->calling($this->dockerService)->stackProgress = function () {
-                    sleep(1);
-
-                    return new \App\Domain\StackProgress(1, 2);
+                $this->calling($this->dockerService)->stackConverge = function () use ($timeLimit) {
+                    throw \App\Domain\DockerServiceFailure::timeout($timeLimit);
                 }
             )
             ->when(
@@ -88,7 +95,7 @@ class StackConvergeCommand extends atoum
             )
             ->then
                 ->variable($result)
-                    ->isEqualTo(62)
+                    ->isEqualTo(\App\Domain\DockerServiceFailure::ETIME)
         ;
     }
 }

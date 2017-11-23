@@ -35,21 +35,45 @@ class StackConvergeCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $stackName = $input->getArgument('stack');
-        $limit = intval($input->getOption('limit'));
+        [$stackName, $limit] = [$input->getArgument('stack'), intval($input->getOption('limit'))];
 
+        $io->title("Waiting for stack '$stackName' to converge");
         try {
-            $progress = $this->dockerService->stackConverge($stackName, $limit)->current();
-            $io->progressStart($progress->getDesired());
-            foreach ($this->dockerService->stackConverge($stackName, $limit) as $progress) {
-                $io->progressAdvance($progress->getStep());
-            }
-            $io->progressFinish();
-            $io->success('Stack has successfuly converged');
+            $this->stackConverge($stackName, $limit, $io);
+            $this->stackShortLivedConverge($stackName, $limit, $io);
         } catch (DockerServiceFailure $e) {
             $io->error($e->getMessage());
 
             return $e->getCode();
         }
+    }
+
+    private function stackConverge($stackName, int $timeout, SymfonyStyle $io)
+    {
+        $io->section('All services: to stable state');
+
+        $progress = $this->dockerService->stackConverge($stackName, $timeout)->current();
+        $io->progressStart($progress->getDesired());
+
+        foreach ($this->dockerService->stackConverge($stackName, $timeout) as $progress) {
+            $io->progressAdvance($progress->getStep());
+        }
+
+        $io->progressFinish();
+    }
+
+    private function stackShortLivedConverge($stackName, int $timeout, SymfonyStyle $io)
+    {
+        $io->section('Short lived services: to shutdown state');
+        $io->note('services that have a `docker-php.service.lifecycle.shortlived` label');
+
+        $progress = $this->dockerService->stackShortLivedConverge($stackName, $timeout)->current();
+        $io->progressStart($progress->getDesired());
+
+        foreach ($this->dockerService->stackShortLivedConverge($stackName, $timeout) as $progress) {
+            $io->progressAdvance($progress->getStep());
+        }
+
+        $io->progressFinish();
     }
 }

@@ -47,6 +47,9 @@ class StackConvergeCommand extends atoum
                     yield new \App\Domain\StackProgress(0, 3);
                     yield new \App\Domain\StackProgress(1, 3, 1);
                     yield new \App\Domain\StackProgress(3, 3, 2);
+                },
+                $this->calling($this->dockerService)->stackShortLivedConverge = function () {
+                    yield new \App\Domain\StackProgress(1, 1);
                 }
             )
             ->when(

@@ -8,7 +8,7 @@ use Assert\Assertion;
 
 class DesiredState
 {
-    private const FINAL_STATES = [
+    private const STABLE_STATES = [
         'running',
         'shutdown',
     ];
@@ -23,8 +23,8 @@ class DesiredState
         $this->state = $cleanState;
     }
 
-    public function isFinal(): bool
+    public function isStable(): bool
     {
-        return in_array($this->state, self::FINAL_STATES, true);
+        return in_array($this->state, self::STABLE_STATES, true);
     }
 }

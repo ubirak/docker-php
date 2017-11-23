@@ -9,7 +9,7 @@ use Assert\Assertion;
 class CurrentState
 {
     // @see https://docs.docker.com/engine/swarm/how-swarm-mode-works/swarm-task-states/
-    private const FINAL_STATES = [
+    private const STABLE_STATES = [
         'complete',
         'running',
         'failed',
@@ -32,9 +32,9 @@ class CurrentState
         $this->state = $cleanState;
     }
 
-    public function isFinal(): bool
+    public function isStable(): bool
     {
-        return in_array($this->state, self::FINAL_STATES, true);
+        return in_array($this->state, self::STABLE_STATES, true);
     }
 
     public function hasFailed(): bool

@@ -43,7 +43,7 @@ class Service
 
     public function hasConverged(): bool
     {
-        return $this->currentState->isFinal() && $this->desiredState->isFinal();
+        return $this->currentState->isStable() && $this->desiredState->isStable();
     }
 
     public function hasFailed(): bool

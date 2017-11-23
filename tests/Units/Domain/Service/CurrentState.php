@@ -9,17 +9,17 @@ use atoum;
 class CurrentState extends atoum
 {
     /**
-     * @dataProvider finalState
+     * @dataProvider stableState
      */
-    public function test state is final(string $state, bool $isFinal)
+    public function test state is stable(string $state, bool $isStable)
     {
         $this
             ->when(
                 $this->newTestedInstance($state)
             )
             ->then
-                ->boolean($this->testedInstance->isFinal())
-                ->isIdenticalTo($isFinal)
+                ->boolean($this->testedInstance->isStable())
+                ->isIdenticalTo($isStable)
         ;
     }
 
@@ -51,17 +51,17 @@ class CurrentState extends atoum
         ;
     }
 
-    protected function finalState(): array
+    protected function stableState(): array
     {
         return [
-            'Not final state accepted' => ['accepted', false],
-            'Not final state preparing' => ['Preparing 1 second ago', false],
-            'Not final state pending' => ['Pending 1 second ago', false],
-            'Not final state assigned' => ['assigned 1 second ago', false],
-            'Not final state starting' => ['Starting', false],
-            'Final state complete' => ['Complete since 2 hours', true],
-            'Final state running' => ['Running', true],
-            'Final state failed' => ['Failed a few seconds ago', true],
+            'Not stable state accepted' => ['accepted', false],
+            'Not stable state preparing' => ['Preparing 1 second ago', false],
+            'Not stable state pending' => ['Pending 1 second ago', false],
+            'Not stable state assigned' => ['assigned 1 second ago', false],
+            'Not stable state starting' => ['Starting', false],
+            'Stable state complete' => ['Complete since 2 hours', true],
+            'Stable state running' => ['Running', true],
+            'Stable state failed' => ['Failed a few seconds ago', true],
         ];
     }
 

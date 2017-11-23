@@ -38,7 +38,7 @@ class StackConvergeCommand extends atoum
         $this->calling($this->output)->getFormatter = new \mock\Symfony\Component\Console\Formatter\OutputFormatterInterface();
     }
 
-    public function test successfuly wait for stack convergence()
+    public function test successfully wait for stack convergence()
     {
         $this
             ->given(

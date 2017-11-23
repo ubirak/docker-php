@@ -87,6 +87,7 @@ class StackProgress extends atoum
     protected function convergence(): array
     {
         return [
+            'Convergence #0' => [0, 0, true],
             'Convergence #1' => [1, 1, true],
             'Convergence #2' => [PHP_INT_MAX, PHP_INT_MAX, true],
             '!= Convergence #1' => [0, 1, false],
@@ -100,7 +101,6 @@ class StackProgress extends atoum
         return [
             'current < 0' => [-1, 1],
             'current > desired' => [2, 1],
-            'desired = 0' => [2, 0],
             'desired < 0' => [2, -1],
             'step < 0' => [2, 2, -1],
         ];

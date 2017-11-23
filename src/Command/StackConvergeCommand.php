@@ -15,10 +15,6 @@ use App\Domain\DockerServiceFailure;
 
 class StackConvergeCommand extends Command
 {
-    private const SLEEP_IN_U_SECONDS = 3 * (10 ** 5);
-    // following consts refers to POSIX errno codes
-    private const ETIME = 62; /* Timer expired */
-
     private $dockerService;
 
     public function __construct(DockerService $dockerService)
@@ -40,29 +36,14 @@ class StackConvergeCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $stackName = $input->getArgument('stack');
-        $limit = $input->getOption('limit');
+        $limit = intval($input->getOption('limit'));
 
         try {
-            $startTime = time();
-            $progress = $this->dockerService->stackProgress($stackName);
-
+            $progress = $this->dockerService->stackConverge($stackName, $limit)->current();
             $io->progressStart($progress->getDesired());
-            $previous = $progress->getCurrent();
-            do {
-                $progress = $this->dockerService->stackProgress($stackName);
-                $io->progressAdvance(max(0, $progress->getCurrent() - $previous));
-
-                $previous = $progress->getCurrent();
-
-                if (time() - $startTime >= $limit) {
-                    $io->error('Time limit exceeded.');
-
-                    return self::ETIME;
-                }
-
-                usleep(self::SLEEP_IN_U_SECONDS);
-            } while (true !== $progress->hasConverged());
-
+            foreach ($this->dockerService->stackConverge($stackName, $limit) as $progress) {
+                $io->progressAdvance($progress->getStep());
+            }
             $io->progressFinish();
             $io->success('Stack has successfuly converged');
         } catch (DockerServiceFailure $e) {

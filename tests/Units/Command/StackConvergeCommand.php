@@ -38,7 +38,7 @@ class StackConvergeCommand extends atoum
         $this->calling($this->output)->getFormatter = new \mock\Symfony\Component\Console\Formatter\OutputFormatterInterface();
     }
 
-    public function test successfuly wait for stack convergence()
+    public function test successfully wait for stack convergence()
     {
         $this
             ->given(
@@ -47,6 +47,9 @@ class StackConvergeCommand extends atoum
                     yield new \App\Domain\StackProgress(0, 3);
                     yield new \App\Domain\StackProgress(1, 3, 1);
                     yield new \App\Domain\StackProgress(3, 3, 2);
+                },
+                $this->calling($this->dockerService)->stackShortLivedConverge = function () {
+                    yield new \App\Domain\StackProgress(1, 1);
                 }
             )
             ->when(

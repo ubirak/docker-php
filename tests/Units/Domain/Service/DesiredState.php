@@ -9,17 +9,29 @@ use atoum;
 class DesiredState extends atoum
 {
     /**
-     * @dataProvider finalState
+     * @dataProvider stableState
      */
-    public function test state is final(string $state, bool $isFinal)
+    public function test state is stable(string $state, bool $isStable)
     {
         $this
             ->when(
                 $this->newTestedInstance($state)
             )
             ->then
-                ->boolean($this->testedInstance->isFinal())
-                ->isIdenticalTo($isFinal)
+                ->boolean($this->testedInstance->isStable())
+                ->isIdenticalTo($isStable)
+        ;
+    }
+
+    public function test state is shutdown()
+    {
+        $this
+            ->when(
+                $this->newTestedInstance('shutdown')
+            )
+            ->then
+                ->boolean($this->testedInstance->isShutdown())
+                ->isTrue()
         ;
     }
 
@@ -36,12 +48,12 @@ class DesiredState extends atoum
         ;
     }
 
-    protected function finalState(): array
+    protected function stableState(): array
     {
         return [
-            'Not final state running' => ['Running', true],
-            'Not final state shutdown' => ['shutdown', true],
-            'Final state accepted' => [' Accepted', false],
+            'Not stable state running' => ['Running', true],
+            'Not stable state shutdown' => ['shutdown', true],
+            'Stable state accepted' => [' Accepted', false],
         ];
     }
 }

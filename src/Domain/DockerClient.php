@@ -6,5 +6,5 @@ namespace App\Domain;
 
 interface DockerClient
 {
-    public function stackPs(string $stackName): \Generator;
+    public function stackPs(string $stackName, array $filters = []): \Generator;
 }

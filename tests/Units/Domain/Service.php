@@ -32,6 +32,42 @@ class Service extends atoum
         ;
     }
 
+    public function test has failed()
+    {
+        $this
+            ->given(
+                $name = 'some_service.1',
+                $currentState = new CurrentState('failed'),
+                $desiredState = new DesiredState('shutdown'),
+                $error = 'ho no!'
+            )
+            ->when(
+                $this->newTestedInstance($name, $currentState, $desiredState, $error)
+            )
+            ->then
+                ->boolean($this->testedInstance->hasFailed())
+                    ->isTrue()
+        ;
+    }
+
+    public function test has successfully ended()
+    {
+        $this
+            ->given(
+                $name = 'some_service.1',
+                $currentState = new CurrentState('success'),
+                $desiredState = new DesiredState('shutdown'),
+                $error = ''
+            )
+            ->when(
+                $this->newTestedInstance($name, $currentState, $desiredState, $error)
+            )
+            ->then
+                ->boolean($this->testedInstance->hasSuccessfullyEnded())
+                    ->isTrue()
+        ;
+    }
+
     public function test name cannot be blank()
     {
         $this

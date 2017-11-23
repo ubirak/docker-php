@@ -14,12 +14,15 @@ class DockerService extends atoum
 
     private $stackName;
 
+    private $filters;
+
     public function beforeTestMethod($method)
     {
         $this->mockGenerator->orphanize('__construct');
         $this->dockerClient = new \mock\App\Domain\DockerClient();
         $this->clock = new \mock\App\Domain\Clock();
         $this->stackName = 'someStack';
+        $this->filters = [];
     }
 
     public function test it track stack convergence()
@@ -114,7 +117,7 @@ class DockerService extends atoum
                 $this->newTestedInstance($this->dockerClient, $this->clock)
             )
             ->when(
-                $progress = $this->testedInstance->stackProgress($this->stackName, $previousProgress)
+                $progress = $this->testedInstance->stackConvergeProgress($this->stackName, 'hasConverged', $this->filters, $previousProgress)
             )
             ->then
                 ->mock($this->dockerClient)
@@ -125,6 +128,39 @@ class DockerService extends atoum
                     ->isTrue()
                 ->integer($progress->getStep())
                     ->isIdenticalTo(2)
+        ;
+    }
+
+    public function test it track stack progress of short lived services()
+    {
+        $this
+            ->given(
+                $this->calling($this->dockerClient)->stackPs = function () {
+                    yield from [
+                        new \App\Domain\Service(
+                            'some_service_foo.1',
+                            new \App\Domain\Service\CurrentState('complete'),
+                            new \App\Domain\Service\DesiredState('shutdown'),
+                            ''
+                        ),
+                        new \App\Domain\Service(
+                            'some_service_bar.1',
+                            new \App\Domain\Service\CurrentState('complete'),
+                            new \App\Domain\Service\DesiredState('shutdown'),
+                            ''
+                        ),
+                    ];
+                }
+            )
+            ->and(
+                $this->newTestedInstance($this->dockerClient, $this->clock)
+            )
+            ->when(
+                $progress = $this->testedInstance->stackConvergeProgress($this->stackName, 'hasSuccessfullyEnded')
+            )
+            ->then
+                ->boolean($progress->hasConverged())
+                    ->isTrue()
         ;
     }
 
@@ -159,7 +195,7 @@ class DockerService extends atoum
                 $this->newTestedInstance($this->dockerClient, $this->clock)
             )
             ->when(
-                $progress = $this->testedInstance->stackProgress($this->stackName)
+                $progress = $this->testedInstance->stackConvergeProgress($this->stackName)
             )
             ->then
                 ->mock($this->dockerClient)
@@ -197,7 +233,7 @@ class DockerService extends atoum
                 $this->newTestedInstance($this->dockerClient, $this->clock)
             )
             ->exception(function () {
-                $this->testedInstance->stackProgress($this->stackName);
+                $this->testedInstance->stackConvergeProgress($this->stackName);
             })
             ->isInstanceOf('\App\Domain\DockerServiceFailure')
                 ->message

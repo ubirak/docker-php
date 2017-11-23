@@ -46,6 +46,11 @@ class Service
         return $this->currentState->isStable() && $this->desiredState->isStable();
     }
 
+    public function hasSuccessfullyEnded(): bool
+    {
+        return !$this->currentState->hasFailed() && $this->desiredState->isShutdown();
+    }
+
     public function hasFailed(): bool
     {
         return $this->currentState->hasFailed();

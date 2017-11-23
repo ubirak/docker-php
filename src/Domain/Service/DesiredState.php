@@ -27,4 +27,9 @@ class DesiredState
     {
         return in_array($this->state, self::STABLE_STATES, true);
     }
+
+    public function isShutdown(): bool
+    {
+        return 'shutdown' === $this->state;
+    }
 }

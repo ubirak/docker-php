@@ -23,6 +23,18 @@ class DesiredState extends atoum
         ;
     }
 
+    public function test state is shutdown()
+    {
+        $this
+            ->when(
+                $this->newTestedInstance('shutdown')
+            )
+            ->then
+                ->boolean($this->testedInstance->isShutdown())
+                ->isTrue()
+        ;
+    }
+
     public function test invalid state is not accepted()
     {
         $this

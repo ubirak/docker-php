@@ -21,7 +21,7 @@ For help and more options:
 docker run --rm -it karibbu/docker-php:latest stack:converge --help
 ```
 
-**NOTE**: this command is also able to track that short lived services of a deployment should reach successfully their shutdown state. You have to add a `docker-php.service.lifecycle.shortlived` on concerned services.
+**NOTE**: this command is also able to track that short lived services of a deployment should reach successfully their shutdown state. You have to add a `docker-php.service.lifecycle=shortlived` on concerned services.
 
 ## Audience
 

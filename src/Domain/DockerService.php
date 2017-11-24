@@ -8,7 +8,7 @@ use Assert\Assertion;
 
 class DockerService
 {
-    public const SHORTLIVED_LABEL = 'label=docker-php.service.lifecycle.shortlived';
+    public const SHORTLIVED_LABEL = 'label=docker-php.service.lifecycle=shortlived';
 
     private const SLEEP_IN_U_SECONDS = 3 * (10 ** 5);
 

@@ -65,7 +65,7 @@ class StackConvergeCommand extends Command
     private function stackShortLivedConverge($stackName, int $timeout, SymfonyStyle $io)
     {
         $io->section('Short lived services: to shutdown state');
-        $io->note('services that have a `docker-php.service.lifecycle.shortlived` label');
+        $io->note('services that have a `'.DockerService::SHORTLIVED_LABEL.'` label');
 
         $progress = $this->dockerService->stackShortLivedConverge($stackName, $timeout)->current();
         $io->progressStart($progress->getDesired());

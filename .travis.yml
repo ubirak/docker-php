@@ -5,7 +5,7 @@ dist: trusty
 
 env:
     global:
-        - DOCKER_VERSION=17.10.0~ce-0~ubuntu
+        - DOCKER_VERSION=17.11.0~ce-0~ubuntu
         - DOCKER_EXPERIMENTAL=true
 
 before_install:
@@ -51,9 +51,5 @@ after_failure:
     - docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
 
 notifications:
-    slack: verylastroom:yqs3UqNXq6H3L9p8npeVFWgh
-    email:
-        recipients:
-            - ci@karibbu.com
-        on_success: change
-        on_failure: change
+    slack:
+        secure: "bpjwkWe2bGp2n6UEid2uI52lBeD7FgjM91E+0xss5xh+/YASqnh2JSQ7lby1K+KQdXwpH8mGX/p1Z6q3v/WvkfPbrGIVB3OVI9sfUB0eqpSky1ca2x3cGlZl7C4irX6Q8svrEsu2hp64ULctwSMwwiJCgf97w/u2Bzje8SgBzI4jbdEcL0kmMer639LWdQqnd9zX4HGuuoKUyL0zU6VYGtwiGSDg4k+GW7M34v3J3JgOu/X2RMQ+axWVwjRhLSLkkQCBxDqKXLvkwlHv3JDrdXPZtcOX2ytjty1lg8bDjETk8npJQ+7SQzS5VTaM7y16L1004Jld0VS8vEDQO/5k8DuwUFWWafXWiQKvp/O8RfUIjA2eDwJBTL/OfFfI2RF2HHD9OAWDGt3Cqx9mgO/AdWrYN2iPQ/E51Dg0hkjdGP4RXZRbBC1TaT2WitDzdNZIsWr8wNviu+SVbwbfrqgkA7QOpFQTpxyV6JqFb4gnjmifp/1O/tnrNj/Vcl0j/uxC9NeZDY6HuuUGgY2rBWJ4mSf7agBdMwg7IhVX998qIB0LBUfsxmCjC3WFTkkeKafcIMZcUPK/pWwG+RddKmjWEJaR30j5Tm3OEAE89i4d9sZN7olIh7+8M4tt7BSQscUEYz419K3zXesE3oLf67Tea4uqVq61koZrgaBhoPI40SI="

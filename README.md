@@ -1,5 +1,4 @@
-docker-php
-==========
+# docker-php
 
 docker-php is a docker client writen in php. You can see it as a hack for some currently missing features in the official docker client.
 
@@ -10,15 +9,17 @@ The primary need was to find a workaround about docker stack deploy as at the ti
 ## Commands
 
 There's currently only one command:
+
 ```shell
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock karibbu/docker-php:latest stack:converge <stack>
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ubirak/docker-php:latest stack:converge <stack>
 ```
 
 ![stack converge demo](./demo/stack-converge.demo.gif)
 
 For help and more options:
+
 ```shell
-docker run --rm -it karibbu/docker-php:latest stack:converge --help
+docker run --rm -it ubirak/docker-php:latest stack:converge --help
 ```
 
 **NOTE**: this command is also able to track that short lived services of a deployment should reach successfully their shutdown state. You have to add a `docker-php.service.lifecycle=shortlived` on concerned services.
@@ -33,8 +34,6 @@ docker-php is intended for people that want to hack around docker client for mis
 
 The service need access to your docker sock. You can run it as root `-u root` or change the read permission of your `/var/run/docker.sock`
 
-Licensing
-=========
+# Licensing
 
-docker-php is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/karibbu/docker-php/blob/master/LICENSE) for the full license text.
-
+docker-php is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/ubirak/docker-php/blob/master/LICENSE) for the full license text.

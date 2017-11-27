@@ -1,4 +1,4 @@
-FROM karibbu/php-docker:7.1.11-stable as latest
+FROM ubirak/php:7.2.0RC6 as latest
 
 USER php
 

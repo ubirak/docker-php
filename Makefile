@@ -1,5 +1,5 @@
 CURRENT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-APP_IMAGE_NAME=karibbu/docker-php
+APP_IMAGE_NAME=ubirak/docker-php
 TAGS_TO_PULL?=latest dev
 
 .PHONY: pull

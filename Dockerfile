@@ -1,4 +1,4 @@
-FROM ubirak/php:7.2.0RC6 as latest
+FROM ubirak/php-docker:7.2.0RC6-stable as latest
 
 USER php
 

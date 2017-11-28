@@ -17,9 +17,6 @@
     "symfony/debug": {
         "version": "v4.0.0-beta4"
     },
-    "symfony/polyfill-mbstring": {
-        "version": "v1.6.0"
-    },
     "symfony/console": {
         "version": "3.3",
         "recipe": {
@@ -124,15 +121,6 @@
     },
     "symfony/process": {
         "version": "v4.0.0-beta4"
-    },
-    "symfony/polyfill-php72": {
-        "version": "v1.6.0"
-    },
-    "paragonie/random_compat": {
-        "version": "v2.0.11"
-    },
-    "symfony/polyfill-php70": {
-        "version": "v1.6.0"
     },
     "symfony/options-resolver": {
         "version": "v4.0.0-beta4"

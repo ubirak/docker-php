@@ -46,7 +46,7 @@ class DockerService
                 $map->add($service->getName(), \call_user_func([$service, $serviceCheckMethod]) ? 1 : 0);
 
                 if ($service->hasFailed()) {
-                    throw DockerServiceFailure::serviceFailed($service->getError());
+                    throw DockerServiceFailure::serviceFailed($service->getName(), $service->getError());
                 }
             } catch (\LogicException $e) {
             }

@@ -71,7 +71,7 @@ class StackConvergeCommand extends atoum
             ->given(
                 $this->newTestedInstance($this->dockerService),
                 $this->calling($this->dockerService)->stackConverge = function () {
-                    throw \App\Domain\DockerServiceFailure::serviceFailed('Ho no!');
+                    throw \App\Domain\DockerServiceFailure::serviceFailed('Some service name', 'Ho no!');
                 }
             )
             ->when(

@@ -10,9 +10,9 @@ class DockerServiceFailure extends \RuntimeException
     public const ENOTRECOVERABLE = 131; /* ENOTRECOVERABLE */
     public const ETIME = 62; /* Timer expired */
 
-    public static function serviceFailed(string $message)
+    public static function serviceFailed(string $serviceName, string $reason)
     {
-        return new static($message, self::ENOTRECOVERABLE);
+        return new static("$serviceName: $reason", self::ENOTRECOVERABLE);
     }
 
     public static function timeout(int $timeout)
